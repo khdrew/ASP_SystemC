@@ -27,6 +27,10 @@ template <int N> SC_MODULE(asp)
 	void store_init();
 	void store_invoke();
 	void process_data();
+	void xor_func();
+	void mac_func();
+	void ave_func();
+
 
 	SC_CTOR(asp)
 	{

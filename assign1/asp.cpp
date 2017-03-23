@@ -19,8 +19,8 @@ void asp<N>::asp_func(){
 					} else if (opcode == 1){
 						data_count = (data_in.read() & 511);
 						mem_sel = data_in.read() & (1 << 17);
-						data_out.write((data << 1) | mem_sel);
-						current_state = Wait_Invoke;
+						data_out.write(  (data_in.read() << 1) | mem_sel );
+						current_state = Wait_Data;
 					}
 					break;
 				case Wait_Data:
@@ -33,7 +33,7 @@ void asp<N>::asp_func(){
 			busy.write(false);
 		}
 	}
-};
+}
 
 template <int N>
 void asp<N>::store_init(){
@@ -46,15 +46,15 @@ void asp<N>::store_init(){
 			A[i] = 0;
 		}
 	}
-};
+}
 
 template <int N>
 void asp<N>::store_invoke(){
 	begin_address = (data_in.read() & 511);
 	end_address = ((data_in.read() >> 9) & 511);
-};
+}
 
 template <int N>
 void asp<N>::process_data(){
 	
-};
+}

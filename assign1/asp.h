@@ -1,15 +1,15 @@
 // asp.h
 #ifndef ASP_H
 #define ASP_H
-enum State {Idle = 1, Wait_Invoke, Wait_Data};
 
-template <int N>
-SC_MODULE(asp)
+template <int N> SC_MODULE(asp)
 {
+	enum State {Idle = 1, Wait_Data};
+
 	sc_in<bool> valid;
 	sc_in<sc_bv<26> > data_in;
 	sc_out<sc_int<16> > data_out;
-	sc_out<bool> Res_ready;
+	sc_out<bool> res_ready;
 	sc_out<bool> busy;
 
 	State current_state;
@@ -19,6 +19,7 @@ SC_MODULE(asp)
 	int data_count;
 	int begin_address;
 	int end_address;
+	bool mem_sel
 
 	void asp_func();
 	void store_init();

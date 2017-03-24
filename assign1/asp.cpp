@@ -7,11 +7,8 @@ void asp<N>::asp_func(){
 	data_out.write(0);
 	busy.write(false);
 	res_ready.write(false);
-	wait();
 	while(true){
-		while (!valid.read()){
-			wait();
-		}
+		wait();
 		busy.write(true);
 		switch (current_state){
 			case Idle:

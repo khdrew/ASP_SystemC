@@ -1,45 +1,50 @@
 // asp_test.cpp
 
-#include "asp.h"
 #include "asp.cpp"
 #include "systemc.h"
 
-using namespace std;
 
 SC_MODULE (input_generate) 
 {
-   sc_out<bool> valid;
-   sc_out<sc_int<26> > data_in;
+	sc_out<bool> valid;
+	sc_out<sc_int<26> > data_in;
 
-   void in_gen();
+	void in_gen();
+	void reset_valid_flag();
+	int i;
 
-   SC_CTOR(input_generate) 
-   {
-      SC_THREAD(in_gen);
-   }
+	SC_CTOR(input_generate) 
+	{
+	SC_THREAD(in_gen);
+	}
 };
+
+
 
 void input_generate::in_gen()
 {
+	reset_valid_flag();
 	data_in.write(0);  // initialize values
-	valid.write(false);
 	
-	wait(10, SC_NS);
-	valid.write(true); // initialize vector A to 0
-
-	wait(10, SC_NS);
-	valid.write(false); // reset
-
-	wait(10, SC_NS);
+	reset_valid_flag();	
 	data_in.write(131072); // initialize vector B to 0
-	valid.write(true);
-
-	wait(10, SC_NS);
-	valid.write(false); // reset
-
-	wait(100, SC_NS);
+	
+	reset_valid_flag();
 	data_in.write(4325386); // opcode store 10 words to vector B
-	valid.write(true);
+	for (i = 0; i < 15; i++){
+		reset_valid_flag();
+		data_in.write(i + 1);
+	}		
+		
+	reset_valid_flag();		
+
+}
+
+void input_generate::reset_valid_flag(){
+	wait(10, SC_NS);
+	valid.write(false); // clock fall
+	wait(10, SC_NS);
+	valid.write(true); // clock rise
 }
 
 
@@ -75,6 +80,5 @@ SC_MODULE(top)
 		in_gen.data_in(t_data_in);
 	}
 }; 
-
 
 SC_MODULE_EXPORT(top);

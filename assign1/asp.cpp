@@ -18,10 +18,10 @@ void asp<N>::asp_func(){
 						store_init();
 						break;
 					case 1: // Store into Vector
+						current_state = Wait_Data;
 						data_count = (data_in.read() & 511);
 						mem_sel = data_in.read() & (1 << 17);
-						data_out.write(  (data_in.read() << 1) | mem_sel );
-						current_state = Wait_Data;
+						data_out.write(data_count);
 						break;
 					case 2: // XOR A
 						store_invoke();
@@ -55,7 +55,8 @@ void asp<N>::asp_func(){
 				process_data();
 				if (data_count == 0){
 					current_state = Idle;	
-				}				
+				}
+				break;
 			default:
 				current_state = Idle;
 				break;
@@ -75,6 +76,7 @@ void asp<N>::store_init(){
 			A[i] = 0;
 		}
 	}
+	data_out.write(65535);
 }
 
 template <int N>
@@ -88,10 +90,12 @@ void asp<N>::process_data(){
 	int target_address = ((data_in.read() >> 16) & 511);
 	if (mem_sel){
 		B[target_address] = data_in.read() & 32767;
+		data_out.write(B[target_address]);
 	}else{
 		A[target_address] = data_in.read() & 32767;
+		data_out.write(A[target_address]);
 	}
-	data_count -= 1;
+	data_count = data_count - 1;
 }
 
 template <int N>

@@ -15,10 +15,9 @@ SC_MODULE (input_generate)
 
 	SC_CTOR(input_generate) 
 	{
-	SC_THREAD(in_gen);
+		SC_THREAD(in_gen);
 	}
 };
-
 
 
 void input_generate::in_gen()
@@ -34,9 +33,14 @@ void input_generate::in_gen()
 	for (i = 0; i < 15; i++){
 		reset_valid_flag();
 		data_in.write(i + 1);
-	}		
+	}
 		
-	reset_valid_flag();		
+	reset_valid_flag();
+	data_in.write(8437762); // xor A from 2 to 96
+	wait(50, SC_NS);
+
+	reset_valid_flag();
+	data_in.write(6306826); // xor B from 10 to 60
 
 }
 
@@ -51,7 +55,7 @@ void input_generate::reset_valid_flag(){
 SC_MODULE(top)
 {
 	// module to test
-	asp<20> my_asp;
+	asp<100> my_asp;
 	// test input signal
 	sc_signal<bool> t_valid;
 	sc_signal<sc_int<26> > t_data_in;

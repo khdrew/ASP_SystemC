@@ -29,18 +29,47 @@ void input_generate::in_gen()
 	data_in.write(131072); // initialize vector B to 0
 	
 	reset_valid_flag();
-	data_in.write(4325386); // opcode store 10 words to vector B
-	for (i = 0; i < 15; i++){
+	data_in.write(4194404); // opcode store 100 words to vector A - 0001 0000 0 00000000 001100100
+	for (i = 0; i < 100; i++){
 		reset_valid_flag();
 		data_in.write(i + 1);
 	}
+
+	reset_valid_flag();
+	data_in.write(4325476); // opcode store 100 words to vector B - 0001 0000 1 00000000 001100100
+	for (i = 0; i < 100; i++){
+		reset_valid_flag();
+		data_in.write(i + 1);
+	}	
 		
 	reset_valid_flag();
 	data_in.write(8437762); // xor A from 2 to 96
 	wait(50, SC_NS);
 
 	reset_valid_flag();
-	data_in.write(6306826); // xor B from 10 to 60
+	data_in.write(12598282); // xor B from 10 to 60
+	wait(50, SC_NS);
+
+	reset_valid_flag();
+	data_in.write(16782337); // multiply sum 1 to 10
+	wait(50, SC_NS);
+
+	reset_valid_flag();
+	data_in.write(20971530); // ave A L4 at 10
+	wait(50, SC_NS);
+
+	reset_valid_flag();
+	data_in.write(25165834); // ave B L4 at 10
+	wait(50, SC_NS);
+
+	reset_valid_flag();
+	data_in.write(29360138); // ave A L8 at 10
+	wait(50, SC_NS);
+
+	reset_valid_flag();
+	data_in.write(33554442); // ave B L8 at 10
+	wait(50, SC_NS);
+
 
 }
 

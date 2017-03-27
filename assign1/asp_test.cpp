@@ -22,52 +22,57 @@ SC_MODULE (input_generate)
 
 void input_generate::in_gen()
 {
-	reset_valid_flag();
+
+
 	data_in.write(0);  // initialize values
-	
 	reset_valid_flag();	
-	data_in.write(131072); // initialize vector B to 0
 	
+	data_in.write(131072); // initialize vector B to 0
 	reset_valid_flag();
+
 	data_in.write(4194404); // opcode store 100 words to vector A - 0001 0000 0 00000000 001100100
+	reset_valid_flag();
 	for (i = 0; i < 100; i++){
+		data_in.write((i << 16) & (i));
 		reset_valid_flag();
-		data_in.write(i + 1);
 	}
 
-	reset_valid_flag();
+	
 	data_in.write(4325476); // opcode store 100 words to vector B - 0001 0000 1 00000000 001100100
+	reset_valid_flag();
 	for (i = 0; i < 100; i++){
+		data_in.write((i << 16) & (i));
 		reset_valid_flag();
-		data_in.write(i + 1);
 	}	
 		
+	
+	data_in.write(8389120); // xor A from 0 to 1
 	reset_valid_flag();
-	data_in.write(8437762); // xor A from 2 to 96
 	wait(50, SC_NS);
 
+	
+	data_in.write(12598282); // xor B from 10 to 30
 	reset_valid_flag();
-	data_in.write(12598282); // xor B from 10 to 60
 	wait(50, SC_NS);
 
-	reset_valid_flag();
 	data_in.write(16782337); // multiply sum 1 to 10
+	reset_valid_flag();
 	wait(50, SC_NS);
 
-	reset_valid_flag();
 	data_in.write(20971530); // ave A L4 at 10
+	reset_valid_flag();
 	wait(50, SC_NS);
 
-	reset_valid_flag();
 	data_in.write(25165834); // ave B L4 at 10
+	reset_valid_flag();
 	wait(50, SC_NS);
 
-	reset_valid_flag();
 	data_in.write(29360138); // ave A L8 at 10
+	reset_valid_flag();
 	wait(50, SC_NS);
 
-	reset_valid_flag();
 	data_in.write(33554442); // ave B L8 at 10
+	reset_valid_flag();
 	wait(50, SC_NS);
 
 
@@ -89,7 +94,7 @@ SC_MODULE(top)
 	sc_signal<bool> t_valid;
 	sc_signal<sc_int<26> > t_data_in;
 	// test output signal
-	sc_signal<sc_int<16> > t_data_out;
+	sc_signal<sc_int<64> > t_data_out;
 	sc_signal<bool> t_res_ready;
 	sc_signal<bool> t_busy;
 	// input generator

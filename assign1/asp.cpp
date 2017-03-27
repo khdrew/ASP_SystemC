@@ -15,10 +15,10 @@ void asp<N>::asp_func(){
 			case Idle:
 				opcode = data_in.read() >> 22;
 				switch (opcode){ 
-					case Store_Init: // Store initialize to 0
+					case STORE_INIT: // Store initialize to 0
 						store_init();
 						break;
-					case Store: // Store into Vector
+					case STORE: // Store into Vector
 						current_state = Wait_Data;
 						data_count = (data_in.read() & 511);
 						mem_sel = data_in.read() & (1 << 17);
@@ -82,7 +82,7 @@ template <int N>
 void asp<N>::store_init(){
 	if (data_in.read() & (1 << 17)) { // vector B
 		for (int i = 0; i < N; i++){
-			B[i] = 0;aw 
+			B[i] = 0;
 		}
 	}else{ // vector A
 		for (int i = 0; i < N; i++){
@@ -102,12 +102,12 @@ void asp<N>::store_invoke(){
 // store value into vector
 template <int N>
 void asp<N>::process_data(){
-	int target_addr = ((data_in.read() >> 16) & 511);
+	target_addr = ((data_in.read() >> 16) & 511);
 	if (mem_sel){
-		B[target_addr] = data_in.read() & 32767;
+		B[target_addr] = data_in.read() & 65535;
 		data_out.write(B[target_addr]);
 	}else{
-		A[target_addr] = data_in.read() & 32767;
+		A[target_addr] = data_in.read() & 65535;
 		data_out.write(A[target_addr]);
 	}
 	data_count = data_count - 1;
@@ -116,16 +116,15 @@ void asp<N>::process_data(){
 // xor function
 template <int N>
 void asp<N>::xor_func(){
-	int output;
 	if (mem_sel){ // xor across B vector
-		output = B[begin_addr];;
+		output = B[begin_addr];
 		for (int i = begin_addr + 1; i <= end_addr; i++){
-			output ^= B[i];
+			output = output ^ B[i];
 		}
 	}else{ // xor across A vector
 		output = A[begin_addr];
 		for (int i = begin_addr + 1; i <= end_addr; i++){
-			output ^= A[i];	
+			output = output ^ A[i];	
 		}
 	}
 	data_out.write(output);
@@ -135,7 +134,7 @@ void asp<N>::xor_func(){
 // multiply and accumulating
 template <int N>
 void asp<N>::mac_func(){
-	int output = 0;
+	output = 0;
 	for (int i = begin_addr; i <= end_addr; i++){
 		output += A[i] * B[i];
 	}
@@ -146,7 +145,7 @@ void asp<N>::mac_func(){
 // average function for L = 4
 template <int N>
 void asp<N>::ave4_func(){
-	int output = 0;
+	output = 0;
 	if (mem_sel){ // ave4 across B vector
 		for (int i = begin_addr; i < begin_addr + 4; i++){
 			output += B[i];
@@ -163,7 +162,7 @@ void asp<N>::ave4_func(){
 // average function for L = 8
 template <int N>
 void asp<N>::ave8_func(){
-	int output = 0;
+	output = 0;
 	if (mem_sel){ // ave4 across B vector
 		for (int i = begin_addr; i < begin_addr + 8; i++){
 			output += B[i];
@@ -176,3 +175,4 @@ void asp<N>::ave8_func(){
 	res_ready.write(true);
 	data_out.write(output / 8);
 }
+

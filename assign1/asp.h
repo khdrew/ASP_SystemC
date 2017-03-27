@@ -3,23 +3,33 @@
 #define ASP_H
 
 #include "systemc.h"
+#define STORE_INIT 0
+#define STORE 1
+#define XOR_A 2
+#define XOR_B 3
+#define MAC 4
+#define AVE4_A 5
+#define AVE4_B 6
+#define AVE8_A 7
+#define AVE8_B 8
+
 
 template <int N> SC_MODULE(asp)
 {
 	enum State {Idle = 1, Wait_Data};
-	enum Opcode {Store_Init = 0, Store, XOR_A,
-	XOR_A, MAC, AVE4_A, AVE4_B, AVE8_A, AVE8_B};
-
 	sc_in<bool> valid;
 	sc_in<sc_int<26> > data_in;
 	sc_out<sc_int<64> > data_out;
 	sc_out<bool> res_ready;
 	sc_out<bool> busy;
 
+
 	State current_state;
-	Opcode opcode;
+	int opcode;
+	int output;
 	int A[N];
 	int B[N];
+	int target_addr;
 	int data_count;
 	int begin_addr;
 	int end_addr;

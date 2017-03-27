@@ -25,10 +25,10 @@ template <int N> SC_MODULE(asp)
 
 
 	State current_state;
-	int opcode;
-	int output;
-	int A[N];
-	int B[N];
+	sc_int<16> A[N];
+	sc_int<16> B[N];
+	sc_int<64> output;
+	int opcode;	
 	int target_addr;
 	int data_count;
 	int begin_addr;

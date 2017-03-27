@@ -89,7 +89,7 @@ void asp<N>::store_init(){
 			A[i] = 0;
 		}
 	}
-	data_out.write(65535);
+	data_out.write(0xFFFFF);
 }
 
 // set m and n values

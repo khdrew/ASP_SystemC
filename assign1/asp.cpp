@@ -11,67 +11,74 @@ void asp<N>::asp_func(){
 		wait();
 		busy.write(true);
 		res_ready.write(false);
-		switch (current_state){
-			case Idle:
-				opcode = data_in.read() >> 22;
-				switch (opcode){ 
-					case STORE_INIT: // Store initialize to 0
-						store_init();
-						break;
-					case STORE: // Store into Vector
-						current_state = Wait_Data;
-						data_count = (data_in.read() & 511);
-						mem_sel = data_in.read() & (1 << 17);
-						data_out.write(data_count);
-						break;
-					case XOR_A: // XOR A
-						store_invoke();
-						mem_sel = 0;
-						xor_func();
-						break;
-					case XOR_B: // XOR B
-						store_invoke();
-						mem_sel = 1;
-						xor_func();
-						break;
-					case MAC: // MAC
-						store_invoke();
-						mac_func();
-						break;
-					case AVE4_A: // AVE A, L = 4
-						store_invoke();
-						mem_sel = 0;
-						ave4_func();
-						break;
-					case AVE4_B: // AVE B, L = 4
-						store_invoke();
-						mem_sel = 1;
-						ave4_func();
-						break;
-					case AVE8_A: // AVE A, L = 8
-						store_invoke();
-						mem_sel = 0;
-						ave8_func();
-						break;
-					case AVE8_B: // AVE B, L = 8
-						store_invoke();
-						mem_sel = 1;
-						ave8_func();
-						break;
-					default:
-						break;
-				}
-				break;
-			case Wait_Data: // wait for data to be received
-				process_data();
-				if (data_count == 0){
-					res_ready.write(true);
-					current_state = Idle;	
-				}
-				break;
-			default:
-				current_state = Idle;
-				break;
+		if (valid.read()){
+			switch (current_state){
+				case Idle:
+					opcode = data_in.read() >> 22;
+					switch (opcode){ 
+						case STORE_INIT: // Store initialize to 0
+							store_init();
+							break;
+						case STORE: // Store into Vector
+							current_state = Wait_Data;
+							data_count = (data_in.read() & 511);
+							mem_sel = data_in.read() & (1 << 17);
+							data_out.write(data_count);
+							break;
+						case XOR_A: // XOR A
+							store_invoke();
+							mem_sel = 0;
+							xor_func();
+							break;
+						case XOR_B: // XOR B
+							store_invoke();
+							mem_sel = 1;
+							xor_func();
+							break;
+						case MAC: // MAC
+							store_invoke();
+							mac_func();
+							break;
+						case AVE4_A: // AVE A, L = 4
+							store_invoke();
+							mem_sel = 0;
+							ave4_func();
+							break;
+						case AVE4_B: // AVE B, L = 4
+							store_invoke();
+							mem_sel = 1;
+							ave4_func();
+							break;
+						case AVE8_A: // AVE A, L = 8
+							store_invoke();
+							mem_sel = 0;
+							ave8_func();
+							break;
+						case AVE8_B: // AVE B, L = 8
+							store_invoke();
+							mem_sel = 1;
+							ave8_func();
+							break;
+						default:
+							break;
+					}
+					break;
+				case Wait_Data: // wait for data to be received
+					process_data();
+					if (data_count == 0){
+						res_ready.write(true);
+						current_state = Idle;	
+					}
+					break;
+				default:
+					current_state = Idle;
+					break;
+			}
+		}else if (reset.read()){
+			mem_sel = 1;
+			store_init();
+			mem_sel = 0;
+			store_init();
 		}
 		busy.write(false);	
 	}
@@ -89,7 +96,7 @@ void asp<N>::store_init(){
 			A[i] = 0;
 		}
 	}
-	data_out.write(0xFFFFF);
+	data_out.write(0xFFFFFF);
 }
 
 // set m and n values

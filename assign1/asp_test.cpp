@@ -46,26 +46,26 @@ void input_generate::in_gen()
 	}	
 		
 	
-	data_in.write(8389120); // xor A from 0 to 1
+	data_in.write(8389633); // xor A from 0 to 1
 	reset_valid_flag();
 	
-	// data_in.write(12598282); // xor B from 10 to 30
-	// reset_valid_flag();
+	data_in.write(12598282); // xor B from 10 to 30
+	reset_valid_flag();
 
-	// data_in.write(16782337); // multiply sum 1 to 10
-	// reset_valid_flag();
+	data_in.write(16782337); // multiply sum 1 to 10
+	reset_valid_flag();
 
-	// data_in.write(20971530); // ave A L4 at 10
-	// reset_valid_flag();
+	data_in.write(20971530); // ave A L4 at 10
+	reset_valid_flag();
 
-	// data_in.write(25165834); // ave B L4 at 10
-	// reset_valid_flag();
+	data_in.write(25165834); // ave B L4 at 10
+	reset_valid_flag();
 
-	// data_in.write(29360138); // ave A L8 at 10
-	// reset_valid_flag();
+	data_in.write(29360138); // ave A L8 at 10
+	reset_valid_flag();
 
-	// data_in.write(33554442); // ave B L8 at 10
-	// reset_valid_flag();
+	data_in.write(33554442); // ave B L8 at 10
+	reset_valid_flag();
 
 
 }
@@ -84,6 +84,7 @@ SC_MODULE(top)
 	asp<100> my_asp;
 	// test input signal
 	sc_signal<bool> t_valid;
+	sc_signal<bool> t_reset;
 	sc_signal<sc_int<26> > t_data_in;
 	// test output signal
 	sc_signal<sc_int<64> > t_data_out;
@@ -99,6 +100,7 @@ SC_MODULE(top)
 		// test module signal mapping
 		// inputs
 		my_asp.valid(t_valid);
+		my_asp.reset(t_reset);
 		my_asp.data_in(t_data_in);
 		// output
 		my_asp.data_out(t_data_out);
@@ -108,6 +110,8 @@ SC_MODULE(top)
 		// genertator signal mapping
 		in_gen.valid(t_valid);
 		in_gen.data_in(t_data_in);
+
+		t_reset = 0;
 	}
 }; 
 

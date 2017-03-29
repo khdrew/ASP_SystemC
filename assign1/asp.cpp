@@ -9,9 +9,14 @@ void asp<N>::asp_func(){
 	res_ready.write(false);
 	while(true){
 		wait();
-		busy.write(true);
-		res_ready.write(false);
-		if (valid.read()){
+		if (reset.read()){
+			mem_sel = 1;
+			store_init();
+			mem_sel = 0;
+			store_init();
+		}else if (valid.read()){
+			busy.write(true);
+			res_ready.write(false);
 			switch (current_state){
 				case Idle:
 					opcode = data_in.read() >> 22;
@@ -60,6 +65,7 @@ void asp<N>::asp_func(){
 							ave8_func();
 							break;
 						default:
+							data_out.write(0xFFFFFF); // error opcode value
 							break;
 					}
 					break;
@@ -70,7 +76,6 @@ void asp<N>::asp_func(){
 				case Wait_Data: // wait for data to be received
 					process_data();
 					if (data_count == 0){
-						res_ready.write(true);
 						current_state = Idle;	
 					}
 					break;
@@ -78,13 +83,10 @@ void asp<N>::asp_func(){
 					current_state = Idle;
 					break;
 			}
-		}else if (reset.read()){
-			mem_sel = 1;
-			store_init();
-			mem_sel = 0;
-			store_init();
-		}
-		busy.write(false);	
+			wait(2.5, SC_NS); // delay for simulation
+			busy.write(false);
+			res_ready.write(true);
+		}		
 	}
 }
 
@@ -100,7 +102,7 @@ void asp<N>::store_init(){
 			A[i] = 0;
 		}
 	}
-	data_out.write(0xFFFFFF);
+	data_out.write(0x01);
 }
 
 // set m and n values
@@ -139,7 +141,6 @@ void asp<N>::xor_func(){
 		}
 	}
 	data_out.write(output);
-	res_ready.write(true);
 }
 
 // multiply and accumulating
@@ -147,10 +148,9 @@ template <int N>
 void asp<N>::mac_func(){
 	output = 0;
 	for (int i = begin_addr; i <= end_addr; i++){
-		output += A[i] * B[i];
+		output = output + A[i] * B[i];
 	}
 	data_out.write(output);
-	res_ready.write(true);
 }
 
 // average function for L = 4
@@ -166,7 +166,6 @@ void asp<N>::ave4_func(){
 			output += A[i];
 		}
 	}
-	res_ready.write(true);
 	data_out.write(output / 4);
 }
 
@@ -183,7 +182,6 @@ void asp<N>::ave8_func(){
 			output += A[i];
 		}
 	}
-	res_ready.write(true);
 	data_out.write(output / 8);
 }
 

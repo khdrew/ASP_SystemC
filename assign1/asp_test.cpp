@@ -31,6 +31,7 @@ void input_generate::in_gen()
 	reset_valid_flag();
 
 	data_in.write(4194404); // opcode store 100 words to vector A - 0001 0000 0 00000000 001100100
+	reset_valid_flag();
 	data_in.write(4245504); // send invoke - 0001 0000 001100100 000000000
 	reset_valid_flag();
 	for (i = 0; i < 100; i++){
@@ -40,6 +41,7 @@ void input_generate::in_gen()
 
 	
 	data_in.write(4325476); // opcode store 100 words to vector B - 0001 0000 1 00000000 001100100
+	reset_valid_flag();
 	data_in.write(4245504); // send invoke - 0001 0000 001100100 000000000
 	reset_valid_flag();
 	for (i = 0; i < 100; i++){	

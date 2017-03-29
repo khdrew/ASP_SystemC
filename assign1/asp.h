@@ -38,6 +38,8 @@ template <int N> SC_MODULE(asp)
 	bool mem_sel;
 
 	void asp_func();
+	void asp_fsm();
+
 	void store_init();
 	void store_invoke();
 	void process_data();

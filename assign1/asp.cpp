@@ -20,7 +20,7 @@ void asp<N>::asp_func(){
 							store_init();
 							break;
 						case STORE: // Store into Vector
-							current_state = Wait_Data;
+							current_state = Wait_Invoke;
 							data_count = (data_in.read() & 511);
 							mem_sel = data_in.read() & (1 << 17);
 							data_out.write(data_count);
@@ -62,6 +62,10 @@ void asp<N>::asp_func(){
 						default:
 							break;
 					}
+					break;
+				case Wait_Invoke:
+					store_invoke();
+					current_state = Wait_Data;
 					break;
 				case Wait_Data: // wait for data to be received
 					process_data();

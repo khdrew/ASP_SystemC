@@ -69,7 +69,7 @@ void asp<N>::asp_func(){
 							break;
 					}
 					break;
-				case Wait_Invoke:
+				case Wait_Invoke: // wait for invoke packet
 					store_invoke();
 					current_state = Wait_Data;
 					break;

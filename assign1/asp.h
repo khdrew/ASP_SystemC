@@ -19,17 +19,18 @@ template <int N> SC_MODULE(asp)
 	enum State {Idle = 1, Wait_Invoke, Wait_Data};
 	
 	sc_in<bool> valid;
-	sc_in<sc_int<26> > data_in;
+	sc_in<sc_uint<26> > data_in;
 	sc_in<bool> reset;
-	sc_out<sc_int<64> > data_out;
+	
+	sc_out<sc_uint<64> > data_out;
 	sc_out<bool> res_ready;
 	sc_out<bool> busy;
 
 
 	State current_state;
-	sc_int<16> A[N];
-	sc_int<16> B[N];
-	sc_int<64> output;
+	sc_uint<16> A[N];
+	sc_uint<16> B[N];
+	sc_uint<64> output;
 	int opcode;	
 	int target_addr;
 	int data_count;

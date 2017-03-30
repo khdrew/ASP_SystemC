@@ -9,16 +9,16 @@ void asp<N>::asp_func(){
 	res_ready.write(false);
 	while(true){
 		wait();
-		if (reset.read()){
+		if (reset.read()){ // reset, clear vector A and B of data
 			mem_sel = 1;
 			store_init();
 			mem_sel = 0;
 			store_init();
-		}else if (valid.read()){
+		}else if (valid.read()){ // new valid instruction/data packet, parse out operation
 			busy.write(true);
 			res_ready.write(false);
 			switch (current_state){
-				case Idle:
+				case Idle: // await instruction state
 					opcode = data_in.read() >> 22;
 					switch (opcode){ 
 						case STORE_INIT: // Store initialize to 0
@@ -40,7 +40,7 @@ void asp<N>::asp_func(){
 							mem_sel = 1;
 							xor_func();
 							break;
-						case MAC: // MAC
+						case MAC: // Multiply and accumulate
 							store_invoke();
 							mac_func();
 							break;
@@ -65,7 +65,7 @@ void asp<N>::asp_func(){
 							ave8_func();
 							break;
 						default:
-							data_out.write(0xFFFFFF); // error opcode value
+							data_out.write(0xFFFF); // error opcode value
 							break;
 					}
 					break;
@@ -84,7 +84,7 @@ void asp<N>::asp_func(){
 					break;
 			}
 			wait(2.5, SC_NS); // delay for simulation
-			busy.write(false);
+			busy.write(false); // end of function execution
 			res_ready.write(true);
 		}		
 	}

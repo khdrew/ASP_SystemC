@@ -7,7 +7,7 @@
 SC_MODULE (input_generate) 
 {
 	sc_out<bool> valid;
-	sc_out<sc_uint<26> > data_in;
+	sc_out<sc_int<26> > data_in;
 
 	void in_gen();
 	void reset_valid_flag();
@@ -89,9 +89,9 @@ SC_MODULE(top)
 	// test input signal
 	sc_signal<bool> t_valid;
 	sc_signal<bool> t_reset;
-	sc_signal<sc_uint<26> > t_data_in;
+	sc_signal<sc_int<26> > t_data_in;
 	// test output signal
-	sc_signal<sc_uint<64> > t_data_out;
+	sc_signal<sc_int<64> > t_data_out;
 	sc_signal<bool> t_res_ready;
 	sc_signal<bool> t_busy;
 	// input generator

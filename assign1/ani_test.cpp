@@ -21,7 +21,7 @@ SC_MODULE (input_generate)
 
 void input_generate::in_gen()
 {
-
+	// (3 << 30) shifting valid and legacy bit into the packet
 
 	d_from_NoC.write((3 << 30) | 0);  // initialize values
 	reset_valid_flag();	

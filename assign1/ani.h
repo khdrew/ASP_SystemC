@@ -19,13 +19,14 @@ SC_MODULE(ani)
 
 	// TO/FROM ANI
 	sc_in<sc_int<32> > d_from_NoC;
-	sc_in<bool> read_NoC;
+	// sc_in<bool> read_NoC;
 	sc_out<sc_int<32> > d_to_NoC;
 
 	int state;
 	// int f_packet;
 	int instruction;
-	// int data_count;
+	int t_instruction;
+	int data_count;
 	int t_packet;
 
 	// FIFO

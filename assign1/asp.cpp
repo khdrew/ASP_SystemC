@@ -19,7 +19,7 @@ void asp<N>::asp_func(){
 			res_ready.write(false);
 			switch (current_state){
 				case Idle: // await instruction state
-					opcode = data_in.read() >> 22;
+					opcode = (data_in.read() >> 22);
 					switch (opcode){ 
 						case STORE_INIT: // Store initialize to 0
 							store_init();
@@ -102,7 +102,7 @@ void asp<N>::store_init(){
 			A[i] = 0;
 		}
 	}
-	data_out.write(0x01);
+	data_out.write(1);
 }
 
 // set m and n values
@@ -161,12 +161,16 @@ void asp<N>::ave4_func(){
 		for (int i = begin_addr; i < begin_addr + 4; i++){
 			output += B[i];
 		}
+		output = output / 4;
+		B[begin_addr] = output;
 	} else { // ave4 across A vector
-		for (int i = begin_addr; i <= begin_addr + 4; i++){
+		for (int i = begin_addr; i < begin_addr + 4; i++){
 			output += A[i];
 		}
+		output = output / 4;
+		A[begin_addr] = output;
 	}
-	data_out.write(output / 4);
+	data_out.write(output);
 }
 
 // average function for L = 8
@@ -177,11 +181,15 @@ void asp<N>::ave8_func(){
 		for (int i = begin_addr; i < begin_addr + 8; i++){
 			output += B[i];
 		}
+		output = output / 8;
+		B[begin_addr] = output;
 	} else { // ave4 across A vector
-		for (int i = begin_addr; i <= begin_addr + 8; i++){
+		for (int i = begin_addr; i < begin_addr + 8; i++){
 			output += A[i];
 		}
+		output = output / 8;
+		A[begin_addr] = output;
 	}
-	data_out.write(output / 8);
+	data_out.write(output);
 }
 

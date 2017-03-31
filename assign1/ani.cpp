@@ -34,26 +34,43 @@ void ani::to_NoC_func()
 }
 
 void ani::prep_t_packet(){
-	t_packet = (instruction & (262143 << 18)) | t_packet; // add valid, legacy, ports etc
+	t_packet = ((instruction & (65535 << 18)) | t_packet); // add valid, legacy, ports etc
 	d_to_NoC.write(t_packet);
 }
 
 // new instruction recieved from NoC to be sent to ASP
 void ani::from_NoC_func()
 {
-	if ((d_from_NoC.read() >> 30) == 3) { // check valid and legacy bit for valid instruction
-		// fifo_from_NoC.write(d_from_NoC.read()); // add to queue
-		instruction = d_from_NoC.read(); 
-		to_asp.write(d_from_NoC.read() & 67108863);
-
-
-
-
-
-
-
-		// send_to_asp(); // check to send to asp
+	t_instruction = d_from_NoC.read();
+	to_asp.write(t_instruction & 67108863);
+	if (t_instruction >> 31) { // check valid
+		valid.write(true);
+		if (state == NOT_STORING){
+			if (((t_instruction >> 22) & 15) == 1){
+				state = NOT_STORING;
+				data_count = (t_instruction & 511) + 1;
+			}else {
+				instruction = t_instruction;
+			}
+		} else {
+			data_count = data_count - 1;
+		}
+	}else{
+		valid.write(false);
 	}
+	// to_asp.write(d_from_NoC.read() & 67108863);
+	// if ((d_from_NoC.read() >> 30) == 3) { // check valid and legacy bit for valid instruction
+	// 	// fifo_from_NoC.write(d_from_NoC.read()); // add to queue
+	// 	to_asp.write(d_from_NoC.read() & 67108863);
+	// 	instruction = d_from_NoC.read(); 
+
+
+
+
+
+
+	// 	// send_to_asp(); // check to send to asp
+	// }
 }
 
 // void ani::pop_queue()

@@ -7,9 +7,10 @@
 SC_MODULE (input_generate) 
 {
 	sc_out<sc_int<32> > d_from_NoC;
-
+	sc_out<bool> pop;
+	
 	void in_gen();
-	void reset_valid_flag();
+	void pop_func();
 	int i;
 
 	SC_CTOR(input_generate) 
@@ -22,60 +23,89 @@ SC_MODULE (input_generate)
 void input_generate::in_gen()
 {
 	// (3 << 30) shifting valid and legacy bit into the packet
+	wait(20, SC_NS);
+	d_from_NoC.write(0); 
+	pop_func(); // should show nothing
+	pop_func();
 
+
+	wait(100, SC_NS);
 	d_from_NoC.write((3 << 30) | 0);  // initialize values
-	reset_valid_flag();	
+	wait(1,SC_NS);
+	pop_func();
 	
 	d_from_NoC.write((3 << 30) | 131072); // initialize vector B to 0
-	reset_valid_flag();
+	pop_func();
 
 	d_from_NoC.write((3 << 30) | 4194404); // opcode store 100 words to vector A - 0001 0000 0 00000000 001100100
-	reset_valid_flag();
+	pop_func();
 	d_from_NoC.write((3 << 30) | 4245504); // send invoke - 0001 0000 001100100 000000000
-	reset_valid_flag();
+	pop_func();
 	for (i = 0; i < 100; i++){
 		d_from_NoC.write((3 << 30) | (i << 16) | i);
-		reset_valid_flag();
+		pop_func();
 	}
 
 	
 	d_from_NoC.write((3 << 30) | 4325476); // opcode store 100 words to vector B - 0001 0000 1 00000000 001100100
-	reset_valid_flag();
+	pop_func();
 	d_from_NoC.write((3 << 30) | 4245504); // send invoke - 0001 0000 001100100 000000000
-	reset_valid_flag();
+	pop_func();
 	for (i = 0; i < 100; i++){	
 		d_from_NoC.write((3 << 30) | (i << 16) | i);
-		reset_valid_flag();
+		pop_func();
 	}	
 		
 	
 	d_from_NoC.write((3 << 30) | 8389633); // xor A from 0 to 1
-	reset_valid_flag();
+	pop_func();
 	
 	d_from_NoC.write((3 << 30) | 12598282); // xor B from 10 to 30
-	reset_valid_flag();
+	pop_func();
 
 	d_from_NoC.write((3 << 30) | 16782337); // multiply sum 1 to 10
-	reset_valid_flag();
+	pop_func();
 
 	d_from_NoC.write((3 << 30) | 20971530); // ave A L4 at 10
-	reset_valid_flag();
-
-	d_from_NoC.write((3 << 30) | 25165834); // ave B L4 at 10
-	reset_valid_flag();
+	pop_func();
 
 	d_from_NoC.write((3 << 30) | 29360138); // ave A L8 at 10
-	reset_valid_flag();
+	pop_func();
+
+	d_from_NoC.write((3 << 30) | 25165834); // ave B L4 at 10
+	pop_func();
 
 	d_from_NoC.write((3 << 30) | 33554442); // ave B L8 at 10
-	reset_valid_flag();
+	pop_func();
+
+	pop_func(); // additional pops, should not change result
+	pop_func();
+	pop_func();
+	pop_func();
+	pop_func();
+	pop_func();
+	pop_func();
+
+	d_from_NoC.write((3 << 30) | 16827905); // result should be 328419 = binary val 101 0000 0010 1110 0011
+	pop_func(); // should pop out 2 answers, this packet shows: 0101
+	pop_func(); // this packet shows: 0000 0010 1110 0011
+
+	wait(100,SC_NS);
+
+	d_from_NoC.write((3 << 30) | 16827904); // queue 2 instructions
+	wait(1,SC_NS);
+	d_from_NoC.write((3 << 30) | 16827905);
+	pop_func(); // should pop out total of 4 packets;
+	pop_func();
+	pop_func(); 
+	pop_func();
 }
 
-void input_generate::reset_valid_flag(){
-	wait(10, SC_NS);
-	d_from_NoC.write(0); // clock fall
-	wait(10, SC_NS);
-	
+void input_generate::pop_func(){
+	pop.write(false);
+	wait(10,SC_NS);	
+	pop.write(true);
+	wait(10,SC_NS);
 }
 
 SC_MODULE(top)
@@ -93,8 +123,7 @@ SC_MODULE(top)
 	sc_signal<bool> t_busy;
 	sc_signal<sc_int<32> > t_d_to_NoC;
 	sc_signal<sc_int<32> > t_d_from_NoC;
-	
-
+	sc_signal<bool> t_pop;
 
 
 	// input generator
@@ -128,9 +157,11 @@ SC_MODULE(top)
 
 		// test NoC mapping
 		my_ani.d_from_NoC(t_d_from_NoC);
+		my_ani.pop(t_pop);
 		my_ani.d_to_NoC(t_d_to_NoC); // READ RESULT
 		// genertator signal mapping
 		in_gen.d_from_NoC(t_d_from_NoC);
+		in_gen.pop(t_pop);
 
 	}
 }; 

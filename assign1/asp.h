@@ -31,7 +31,8 @@ template <int N> SC_MODULE(asp)
 	sc_int<16> A[N];
 	sc_int<16> B[N];
 	sc_int<64> output;
-	sc_uint<4> opcode;	
+	sc_uint<4> opcode;
+	int instruction;
 	int target_addr;
 	int data_count;
 	int begin_addr;
@@ -53,7 +54,7 @@ template <int N> SC_MODULE(asp)
 	SC_CTOR(asp)
 	{
 		SC_THREAD(asp_func);
-			sensitive << valid << reset;
+			sensitive << valid << reset << data_in;
 	}
 };
 

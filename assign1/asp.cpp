@@ -15,19 +15,22 @@ void asp<N>::asp_func(){
 			mem_sel = 0;
 			store_init();
 		}else if (valid.read()){ // new valid instruction/data packet, parse out operation
-			busy.write(true);
+			instruction = data_in.read();
+			wait(2,SC_NS);	// get data
+			busy.write(true);	// set busy and result to process instruction
 			res_ready.write(false);
+			// DECODE AND PROCESS
 			switch (current_state){
 				case Idle: // await instruction state
-					opcode = (data_in.read() >> 22);
+					opcode = (instruction >> 22);
 					switch (opcode){ 
 						case STORE_INIT: // Store initialize to 0
 							store_init();
 							break;
 						case STORE: // Store into Vector
 							current_state = Wait_Invoke;
-							data_count = (data_in.read() & 511);
-							mem_sel = data_in.read() & (1 << 17);
+							data_count = (instruction & 511);
+							mem_sel = instruction & (1 << 17);
 							data_out.write(data_count);
 							break;
 						case XOR_A: // XOR A
@@ -79,11 +82,12 @@ void asp<N>::asp_func(){
 						current_state = Idle;	
 					}
 					break;
-				default:
+				default: // set default state
 					current_state = Idle;
 					break;
 			}
-			wait(2.5, SC_NS); // delay for simulation
+			// SIGNAL RESULT
+			wait(2, SC_NS); // delay, computation time
 			busy.write(false); // end of function execution
 			res_ready.write(true);
 		}		
@@ -93,7 +97,7 @@ void asp<N>::asp_func(){
 // 
 template <int N>
 void asp<N>::store_init(){
-	if (data_in.read() & (1 << 17)) { // vector B
+	if (instruction & (1 << 17)) { // vector B
 		for (int i = 0; i < N; i++){
 			B[i] = 0;
 		}
@@ -108,19 +112,19 @@ void asp<N>::store_init(){
 // set m and n values
 template <int N>
 void asp<N>::store_invoke(){
-	begin_addr = (data_in.read() & 511);
-	end_addr = ((data_in.read() >> 9) & 511);
+	begin_addr = (instruction & 511);
+	end_addr = ((instruction >> 9) & 511);
 }
 
 // store value into vector
 template <int N>
 void asp<N>::process_data(){
-	target_addr = ((data_in.read() >> 16) & 511);
+	target_addr = ((instruction >> 16) & 511);
 	if (mem_sel){
-		B[target_addr] = data_in.read() & 65535;
+		B[target_addr] = instruction & 65535;
 		data_out.write(B[target_addr]);
 	}else{
-		A[target_addr] = data_in.read() & 65535;
+		A[target_addr] = instruction & 65535;
 		data_out.write(A[target_addr]);
 	}
 	data_count = data_count - 1;

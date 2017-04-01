@@ -3,9 +3,11 @@
 #define ANI_H
 
 #include "systemc.h"
+#include "queue"
 #define NOT_STORING 0
 #define STORING 1
 
+using namespace std;
 
 SC_MODULE(ani)
 {
@@ -18,26 +20,23 @@ SC_MODULE(ani)
 	sc_out<bool> reset;
 
 	// TO/FROM ANI
+	sc_in<bool> pop;
 	sc_in<sc_int<32> > d_from_NoC;
-	// sc_in<bool> read_NoC;
 	sc_out<sc_int<32> > d_to_NoC;
 
 	int state;
-	// int f_packet;
 	int instruction;
 	int t_instruction;
 	int data_count;
 	int t_packet;
-
-	// FIFO
-	// sc_fifo<int> fifo_from_NoC;
-	// sc_fifo<int> fifo_to_NoC;	
-
+	queue<int> queue_to_NoC;
+	queue<int> queue_from_NoC;
+	
+	void pop_queue();
 	void to_NoC_func();
 	void from_NoC_func();
-	// void pop_queue();
 	void prep_t_packet();
-	// void send_to_asp();
+	void send_to_asp();
 
 	SC_CTOR(ani)
 	{
@@ -45,12 +44,8 @@ SC_MODULE(ani)
 			sensitive << res_ready << busy;
 		SC_METHOD(from_NoC_func); // RECIEVE INSTRUCTION
 			sensitive << d_from_NoC;
-		// SC_METHOD(pop_queue);
-		// 	sensitive << read_NoC;
-
-		// sc_fifo<int> fifo_from_NoC(10);
-		// sc_fifo<int> fifo_to_NoC(10);
-
+		SC_METHOD(pop_queue);
+			sensitive << pop;
 	}
 };
 

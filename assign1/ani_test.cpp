@@ -108,8 +108,12 @@ void input_generate::pop_func(){
 	wait(10,SC_NS);
 }
 
+
+
 SC_MODULE(top)
 {
+	sc_clock t_clock;
+
 	// modules to test
 	asp<100> my_asp;
 	ani my_ani;
@@ -132,13 +136,15 @@ SC_MODULE(top)
 	SC_CTOR(top)
 		: my_asp("my_asp"),
 		  my_ani("my_ani"),
-		  in_gen("in_gen")
+		  in_gen("in_gen"),
+		  t_clock("clock", 5)
 	{
 		// test ASP signal mapping
 		// inputs
 		my_asp.valid(t_valid);
 		my_asp.reset(t_reset);
 		my_asp.data_in(t_data_in);
+		my_asp.clk(t_clock);
 		// output
 		my_asp.data_out(t_data_out);
 		my_asp.res_ready(t_res_ready);

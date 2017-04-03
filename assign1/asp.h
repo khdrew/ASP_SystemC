@@ -17,7 +17,7 @@
 template <int N> SC_MODULE(asp)
 {
 	enum State {Idle = 1, Wait_Invoke, Wait_Data};
-	
+	sc_in<bool> clk;
 	sc_in<bool> valid;
 	sc_in<sc_int<26> > data_in;
 	sc_in<bool> reset;
@@ -54,7 +54,7 @@ template <int N> SC_MODULE(asp)
 	SC_CTOR(asp)
 	{
 		SC_THREAD(asp_func);
-			sensitive << valid << reset << data_in;
+			sensitive << clk.pos();
 	}
 };
 

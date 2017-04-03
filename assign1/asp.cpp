@@ -20,6 +20,7 @@ void asp<N>::asp_func(){
 			busy.write(true);	// set busy and result to process instruction
 			res_ready.write(false);
 			// DECODE AND PROCESS
+			wait();
 			switch (current_state){
 				case Idle: // await instruction state
 					opcode = (instruction >> 22);
@@ -87,10 +88,9 @@ void asp<N>::asp_func(){
 					break;
 			}
 			// SIGNAL RESULT
-			wait(2, SC_NS); // delay, computation time
 			busy.write(false); // end of function execution
 			res_ready.write(true);
-		}		
+		}
 	}
 }
 

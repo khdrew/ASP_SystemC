@@ -82,14 +82,14 @@ void ani::send_to_asp(){
 			queue_from_NoC.pop();
 			to_asp.write(t_instruction & 67108863);
 			if (t_instruction >> 31) { // check valid
-				if (state == NOT_STORING){
+				if (state == NOT_STORING){ // do not store data/invoke information
 					if (((t_instruction >> 22) & 15) == 1){
 						state = NOT_STORING;
 						data_count = (t_instruction & 511) + 1;
-					}else {
+					}else { // save the instruction containing port information
 						instruction = t_instruction;
 					}
-				} else {
+				} else { // count data packets
 					data_count = data_count - 1;
 				}
 				valid.write(true);

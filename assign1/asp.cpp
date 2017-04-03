@@ -14,6 +14,7 @@ void asp<N>::asp_func(){
 			store_init();
 			mem_sel = 0;
 			store_init();
+			current_state = Idle;
 		}else if (valid.read()){ // new valid instruction/data packet, parse out operation
 			instruction = data_in.read();
 			wait(2,SC_NS);	// get data

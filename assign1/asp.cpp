@@ -17,7 +17,6 @@ void asp<N>::asp_func(){
 			current_state = Idle;
 		}else if (valid.read()){ // new valid instruction/data packet, parse out operation
 			instruction = data_in.read();
-			wait(2,SC_NS);	// get data
 			busy.write(true);	// set busy and result to process instruction
 			res_ready.write(false);
 			// DECODE AND PROCESS

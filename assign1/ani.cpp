@@ -46,23 +46,6 @@ void ani::from_NoC_func()
 {
 	queue_from_NoC.push(d_from_NoC.read());
 	send_to_asp();
-	// t_instruction = d_from_NoC.read();
-	// to_asp.write(t_instruction & 67108863);
-	// if (t_instruction >> 31) { // check valid
-	// 	if (state == NOT_STORING){
-	// 		if (((t_instruction >> 22) & 15) == 1){
-	// 			state = NOT_STORING;
-	// 			data_count = (t_instruction & 511) + 1;
-	// 		}else {
-	// 			instruction = t_instruction;
-	// 		}
-	// 	} else {
-	// 		data_count = data_count - 1;
-	// 	}
-	// 	valid.write(true);
-	// }else{
-	// 	valid.write(false);
-	// }
 }
 
 void ani::pop_queue()
@@ -77,7 +60,7 @@ void ani::pop_queue()
 
 void ani::send_to_asp(){
 	if (!busy.read()){ // if not busy send to asp
-		if (!queue_from_NoC.empty){
+		if (!queue_from_NoC.empty()){
 			t_instruction = queue_from_NoC.front();
 			queue_from_NoC.pop();
 			to_asp.write(t_instruction & 67108863);

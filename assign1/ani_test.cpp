@@ -90,15 +90,7 @@ void input_generate::in_gen()
 	pop_func(); // should pop out 2 answers, this packet shows: 0101
 	pop_func(); // this packet shows: 0000 0010 1110 0011
 
-	wait(100,SC_NS);
 
-	d_from_NoC.write((3 << 30) | 16827904); // queue 2 instructions
-	wait(1,SC_NS);
-	d_from_NoC.write((3 << 30) | 16827905);
-	pop_func(); // should pop out total of 4 packets;
-	pop_func();
-	pop_func(); 
-	pop_func();
 }
 
 void input_generate::pop_func(){

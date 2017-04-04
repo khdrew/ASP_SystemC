@@ -16,11 +16,12 @@ void asp<N>::asp_func(){
 			store_init();
 			current_state = Idle;
 		}else if (valid.read()){ // new valid instruction/data packet, parse out operation
+			// WAIT VALID STATE
 			instruction = data_in.read();
 			busy.write(true);	// set busy and result to process instruction
 			res_ready.write(false);
-			// DECODE AND PROCESS
 			wait();
+			// PROCESS PACKET STATE
 			switch (current_state){
 				case Idle: // await instruction state
 					opcode = (instruction >> 22);
@@ -49,22 +50,18 @@ void asp<N>::asp_func(){
 							mac_func();
 							break;
 						case AVE4_A: // AVE A, L = 4
-							store_invoke();
 							mem_sel = 0;
 							ave4_func();
 							break;
 						case AVE4_B: // AVE B, L = 4
-							store_invoke();
 							mem_sel = 1;
 							ave4_func();
 							break;
 						case AVE8_A: // AVE A, L = 8
-							store_invoke();
 							mem_sel = 0;
 							ave8_func();
 							break;
 						case AVE8_B: // AVE B, L = 8
-							store_invoke();
 							mem_sel = 1;
 							ave8_func();
 							break;
@@ -160,40 +157,42 @@ void asp<N>::mac_func(){
 // average function for L = 4
 template <int N>
 void asp<N>::ave4_func(){
-	output = 0;
 	if (mem_sel){ // ave4 across B vector
-		for (int i = begin_addr; i < begin_addr + 4; i++){
-			output += B[i];
+		for (int i = 0; i <= N - 4; i++){
+			for (int j = 1; j < 4; j++){
+				B[i] = B[i] + B[i + j];
+			}
+			B[i] = B[i] / 4;
 		}
-		output = output / 4;
-		B[begin_addr] = output;
 	} else { // ave4 across A vector
-		for (int i = begin_addr; i < begin_addr + 4; i++){
-			output += A[i];
+		for (int i = 0; i <= N - 4; i++){
+			for (int j = 1; j < 4; j++){
+				A[i] = A[i] + A[i + j];
+			}
+			A[i] = A[i] / 4;
 		}
-		output = output / 4;
-		A[begin_addr] = output;
 	}
-	data_out.write(output);
+	data_out.write(1);
 }
 
 // average function for L = 8
 template <int N>
 void asp<N>::ave8_func(){
-	output = 0;
 	if (mem_sel){ // ave4 across B vector
-		for (int i = begin_addr; i < begin_addr + 8; i++){
-			output += B[i];
+		for (int i = 0; i <= N - 8; i++){
+			for (int j = 1; j < 8; j++){
+				B[i] = B[i] + B[i + j];
+			}
+			B[i] = B[i] / 4;
 		}
-		output = output / 8;
-		B[begin_addr] = output;
 	} else { // ave4 across A vector
-		for (int i = begin_addr; i < begin_addr + 8; i++){
-			output += A[i];
+		for (int i = 0; i <= N - 8; i++){
+			for (int j = 1; j < 8; j++){
+				A[i] = A[i] + A[i + j];
+			}
+			A[i] = A[i] / 4;
 		}
-		output = output / 8;
-		A[begin_addr] = output;
 	}
-	data_out.write(output);
+	data_out.write(1);
 }
 

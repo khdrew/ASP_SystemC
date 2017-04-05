@@ -7,5 +7,5 @@
 5. Simulate without optimization
 6. Add all signals from `top` module
 7. Add signals `A` and `B` signals from `my_asp` module
-8. Input into terminal: `run 5000 ns`
+8. Input into terminal: `run 9500 ns`
 9. Observe waveforms (refer to simulation section in report)

@@ -105,13 +105,20 @@ void input_generate::in_gen()
 	d_from_NoC.write((3 << 30) | 16827905); // result should be 328419 = binary val 101 0000 0010 1110 0011
 	pop_func(); // should pop out 2 answers, this packet shows: 0101
 	pop_func(); // this packet shows: 0000 0010 1110 0011
+	pop_func();
+	pop_func();
+	pop_func();
+	
+	wait(100,SC_NS);
 
 	d_from_NoC.write((3 << 30) | 16827904);
-	wait(1,SC_NS);
+	wait(8,SC_NS);
 	d_from_NoC.write((3 << 30) | 16827905);
 	// two packets of instructions sent back to back.
 	pop_func(); // one access granted packet and one not granted should be popped
 	pop_func(); // and follows is also a 2 packet answer
+	pop_func();
+	pop_func();
 	pop_func();
 	pop_func();
 

@@ -35,7 +35,8 @@ void ani::to_NoC_func()
 }
 
 void ani::prep_t_packet(){
-	t_packet = ((instruction & (65535 << 18)) | t_packet); // add valid, legacy, ports etc
+	// swap port send/receive
+	t_packet = ((3 << 30) | ((instruction & (15 << 18)) << 8) | (instruction & (15 << 22)) | ((instruction & (15 << 26)) >> 8) | t_packet);
 	queue_to_NoC.push(t_packet);
 }
 
@@ -67,13 +68,16 @@ void ani::from_NoC_func(){
 				data_count = data_count - 1;
 			}
 			valid.write(true);
-			queue_to_NoC.push((instruction & (65535 << 18)) | 1); // send access granted
+			queue_to_NoC.push((3 << 30) | ((instruction & (15 << 18)) << 8) | (instruction & (15 << 22)) | ((instruction & (15 << 26)) >> 8) | 1); // send access granted
+			// swap port send/receive
 		}else{
 			valid.write(false);
-			queue_to_NoC.push(0); // send access not granted
+			queue_to_NoC.push((3 << 30) | ((instruction & (15 << 18)) << 8) | (instruction & (15 << 22)) | ((instruction & (15 << 26)) >> 8) | 0); // send access not granted
+			// swap port send/receive
 		}
 	}else{
-		queue_to_NoC.push(0); // send access not granted
+		queue_to_NoC.push((3 << 30) | ((instruction & (15 << 18)) << 8) | (instruction & (15 << 22)) | ((instruction & (15 << 26)) >> 8) | 0); // send access not granted
+		// swap port send/receive
 	}
 }
 

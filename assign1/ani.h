@@ -35,7 +35,6 @@ SC_MODULE(ani)
 	void to_NoC_func();
 	void from_NoC_func();
 	void prep_t_packet();
-	void send_to_asp();
 
 	SC_CTOR(ani)
 	{

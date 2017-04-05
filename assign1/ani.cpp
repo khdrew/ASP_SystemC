@@ -39,12 +39,6 @@ void ani::prep_t_packet(){
 	queue_to_NoC.push(t_packet);
 }
 
-// new instruction recieved from NoC to be sent to ASP
-void ani::from_NoC_func()
-{
-	queue_from_NoC.push(d_from_NoC.read());
-	send_to_asp();
-}
 
 void ani::pop_queue()
 {
@@ -56,29 +50,27 @@ void ani::pop_queue()
 	}
 }
 
-void ani::send_to_asp(){
+// new instruction recieved from NoC to be sent to ASP
+void ani::from_NoC_func(){
 	if (!busy.read()){ // if not busy send to asp
-		if (!queue_from_NoC.empty()){
-			t_instruction = queue_from_NoC.front();
-			queue_from_NoC.pop();
-			to_asp.write(t_instruction & 67108863);
-			if (t_instruction >> 31) { // check valid
-				if (state == NOT_STORING){ // do not store data/invoke information
-					if (((t_instruction >> 22) & 15) == 1){
-						state = NOT_STORING;
-						data_count = (t_instruction & 511) + 1;
-					}else { // save the instruction containing port information
-						instruction = t_instruction;
-					}
-				} else { // count data packets
-					data_count = data_count - 1;
+		t_instruction = d_from_NoC.read();
+		to_asp.write(t_instruction & 67108863);
+		if (t_instruction >> 31) { // check valid
+			if (state == NOT_STORING){ // do not store data/invoke information
+				if (((t_instruction >> 22) & 15) == 1){
+					state = NOT_STORING;
+					data_count = (t_instruction & 511) + 1;
+				}else { // save the instruction containing port information
+					instruction = t_instruction;
 				}
-				valid.write(true);
-				queue_to_NoC.push((instruction & (65535 << 18)) | 1); // send access granted
-			}else{
-				valid.write(false);
-				queue_to_NoC.push(0); // send access not granted
+			} else { // count data packets
+				data_count = data_count - 1;
 			}
+			valid.write(true);
+			queue_to_NoC.push((instruction & (65535 << 18)) | 1); // send access granted
+		}else{
+			valid.write(false);
+			queue_to_NoC.push(0); // send access not granted
 		}
 	}else{
 		queue_to_NoC.push(0); // send access not granted

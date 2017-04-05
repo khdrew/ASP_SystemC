@@ -25,59 +25,75 @@ void input_generate::in_gen()
 	// (3 << 30) shifting valid and legacy bit into the packet
 	wait(20, SC_NS);
 	d_from_NoC.write(0); 
-	pop_func(); // should show nothing
+	pop_func(); // should show 0
 	pop_func();
 
 
 	wait(100, SC_NS);
 	d_from_NoC.write((3 << 30) | 0);  // initialize values
-	wait(1,SC_NS);
-	pop_func();
+	pop_func(); // pop is required twice to read the access granted
+	pop_func(); // pop again for response
 	
 	d_from_NoC.write((3 << 30) | 131072); // initialize vector B to 0
+	pop_func();
+	pop_func();
 	pop_func();
 
 	d_from_NoC.write((3 << 30) | 4194404); // opcode store 100 words to vector A - 0001 0000 0 00000000 001100100
 	pop_func();
+	pop_func();
 	d_from_NoC.write((3 << 30) | 4245504); // send invoke - 0001 0000 001100100 000000000
+	pop_func();
 	pop_func();
 	for (i = 0; i < 100; i++){
 		d_from_NoC.write((3 << 30) | (i << 16) | i);
+		pop_func();
 		pop_func();
 	}
 
 	
 	d_from_NoC.write((3 << 30) | 4325476); // opcode store 100 words to vector B - 0001 0000 1 00000000 001100100
 	pop_func();
+	pop_func();
 	d_from_NoC.write((3 << 30) | 4245504); // send invoke - 0001 0000 001100100 000000000
+	pop_func();
 	pop_func();
 	for (i = 0; i < 100; i++){	
 		d_from_NoC.write((3 << 30) | (i << 16) | i);
+		pop_func();
 		pop_func();
 	}	
 		
 	
 	d_from_NoC.write((3 << 30) | 8389633); // xor A from 0 to 1
 	pop_func();
+	pop_func();
 	
 	d_from_NoC.write((3 << 30) | 12598282); // xor B from 10 to 30
+	pop_func();
 	pop_func();
 
 	d_from_NoC.write((3 << 30) | 16782337); // multiply sum 1 to 10
 	pop_func();
+	pop_func();
 
 	d_from_NoC.write((3 << 30) | 20971530); // ave A L4 at 10
+	pop_func();
 	pop_func();
 
 	d_from_NoC.write((3 << 30) | 29360138); // ave A L8 at 10
 	pop_func();
+	pop_func();
 
 	d_from_NoC.write((3 << 30) | 25165834); // ave B L4 at 10
+	pop_func();
 	pop_func();
 
 	d_from_NoC.write((3 << 30) | 33554442); // ave B L8 at 10
 	pop_func();
+	pop_func();
 
+	pop_func();
 	pop_func(); // additional pops, should not change result
 	pop_func();
 	pop_func();
@@ -90,6 +106,14 @@ void input_generate::in_gen()
 	pop_func(); // should pop out 2 answers, this packet shows: 0101
 	pop_func(); // this packet shows: 0000 0010 1110 0011
 
+	d_from_NoC.write((3 << 30) | 16827904);
+	wait(1,SC_NS);
+	d_from_NoC.write((3 << 30) | 16827905);
+	// two packets of instructions sent back to back.
+	pop_func(); // one access granted packet and one not granted should be popped
+	pop_func(); // and follows is also a 2 packet answer
+	pop_func();
+	pop_func();
 
 }
 

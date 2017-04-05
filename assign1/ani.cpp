@@ -6,7 +6,6 @@
 void ani::to_NoC_func()
 {
 	state = NOT_STORING; // initialize variables
-	// data_count = 0;
 	while(1){
 		wait();
 		if (!busy.read() || res_ready.read()){
@@ -29,7 +28,6 @@ void ani::to_NoC_func()
 			}
 			t_packet = (from_asp.read() & 65535); // send data or access granted
 			prep_t_packet(); // add other relevant information and send
-			send_to_asp();
 		}else{
 			valid.write(false);
 		}
@@ -76,10 +74,14 @@ void ani::send_to_asp(){
 					data_count = data_count - 1;
 				}
 				valid.write(true);
+				queue_to_NoC.push((instruction & (65535 << 18)) | 1); // send access granted
 			}else{
 				valid.write(false);
+				queue_to_NoC.push(0); // send access not granted
 			}
 		}
+	}else{
+		queue_to_NoC.push(0); // send access not granted
 	}
 }
 

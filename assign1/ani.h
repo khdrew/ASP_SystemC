@@ -30,7 +30,6 @@ SC_MODULE(ani)
 	int data_count;
 	int t_packet;
 	queue<int> queue_to_NoC;
-	queue<int> queue_from_NoC;
 	
 	void pop_queue();
 	void to_NoC_func();
